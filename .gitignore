@@ -1,0 +1,15 @@
+# Build output
+**/bin/
+**/obj/
+
+# IDE settings
+.vs/
+.idea/
+*.user
+*.suo
+
+# Test results
+TestResults/
+
+# macOS
+.DS_Store

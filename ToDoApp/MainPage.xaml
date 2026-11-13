@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+ xmlns:vm="clr-namespace:TodoApp.core.ViewModels;assembly=ToDoApp.core"
+ xmlns:models="clr-namespace:TodoApp.core.Models;assembly=ToDoApp.core"
+ x:Class="ToDoApp.MainPage" x:Name="TasksPage" x:DataType="vm:MainViewModel" BackgroundColor="#F5F7FA">
+ <ContentPage.Resources>
+  <Style TargetType="Label"><Setter Property="TextColor" Value="#202831"/></Style>
+  <Style TargetType="Button"><Setter Property="BackgroundColor" Value="#176B68"/><Setter Property="TextColor" Value="White"/><Setter Property="CornerRadius" Value="6"/><Setter Property="Padding" Value="12,8"/><Setter Property="MinimumHeightRequest" Value="40"/></Style>
+  <Style TargetType="CheckBox"><Setter Property="Color" Value="#176B68"/></Style>
+  <Style x:Key="TaskTitle" TargetType="Label">
+   <Setter Property="VerticalOptions" Value="Center"/>
+   <Setter Property="LineBreakMode" Value="WordWrap"/>
+   <Style.Triggers>
+    <DataTrigger TargetType="Label" Binding="{Binding IsCompleted, x:DataType=models:TaskItem}" Value="True">
+     <Setter Property="TextDecorations" Value="Strikethrough"/><Setter Property="TextColor" Value="#667380"/>
+    </DataTrigger>
+   </Style.Triggers>
+  </Style>
+ </ContentPage.Resources>
+ <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="12">
+  <Label Text="Мои задачи" FontSize="28" FontAttributes="Bold"/>
+  <Grid Grid.Row="1" ColumnDefinitions="*,180,Auto" ColumnSpacing="12" IsEnabled="{Binding IsReady}">
+   <Entry Placeholder="Новая задача" Text="{Binding NewTaskTitle}" MaxLength="200" ReturnCommand="{Binding AddTaskCommand}"/>
+   <Picker Grid.Column="1" Title="Категория" ItemsSource="{Binding Categories}" ItemDisplayBinding="{Binding Name, x:DataType=models:Category}" SelectedItem="{Binding SelectedCategory}"/>
+   <Button Grid.Column="2" Text="Добавить" Command="{Binding AddTaskCommand}"/>
+  </Grid>
+  <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="12" IsEnabled="{Binding IsReady}">
+   <Entry Placeholder="Новая категория" Text="{Binding NewCategoryName}" MaxLength="200" ReturnCommand="{Binding AddCategoryCommand}"/>
+   <Button Grid.Column="1" Text="Добавить категорию" Command="{Binding AddCategoryCommand}" BackgroundColor="#415365"/>
+  </Grid>
+  <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+   <Label Text="{Binding ErrorMessage}" TextColor="#B3261E" LineBreakMode="WordWrap"/>
+   <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="24"/>
+  </Grid>
+  <Grid Grid.Row="4" ColumnDefinitions="*,*" ColumnSpacing="24" IsEnabled="{Binding IsReady}">
+   <Grid RowDefinitions="Auto,*" RowSpacing="12">
+    <Label Text="Задачи" FontSize="20" FontAttributes="Bold"/>
+    <CollectionView Grid.Row="1" ItemsSource="{Binding Tasks}" SelectionMode="None">
+     <CollectionView.EmptyView><Label Text="Задач пока нет" Margin="0,16"/></CollectionView.EmptyView>
+     <CollectionView.ItemTemplate>
+      <DataTemplate x:DataType="models:TaskItem">
+       <Grid Padding="0,12" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="8" RowSpacing="6">
+        <CheckBox IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnCompletedChanged"/>
+        <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource TaskTitle}"/>
+        <Label Grid.Row="1" Grid.Column="1" Text="{Binding CategoryName}" FontSize="12" TextColor="#667380"/>
+        <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="8">
+         <Button Text="Подзадачи" Command="{Binding BindingContext.SelectTaskCommand, Source={x:Reference TasksPage}, x:DataType=ContentPage}" CommandParameter="{Binding .}"/>
+         <Button Text="×" FontSize="22" BackgroundColor="#F6E6E5" TextColor="#A12724" SemanticProperties.Description="Удалить задачу" ToolTipProperties.Text="Удалить задачу и её подзадачи" Command="{Binding BindingContext.DeleteTaskCommand, Source={x:Reference TasksPage}, x:DataType=ContentPage}" CommandParameter="{Binding .}"/>
+        </HorizontalStackLayout>
+       </Grid>
+      </DataTemplate>
+     </CollectionView.ItemTemplate>
+    </CollectionView>
+   </Grid>
+   <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12">
+    <Label Text="Подзадачи" FontSize="20" FontAttributes="Bold"/>
+    <Label Grid.Row="1" Text="{Binding SelectedTask.Title, TargetNullValue='Задача не выбрана'}" FontAttributes="Bold" LineBreakMode="WordWrap"/>
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+     <Entry Text="{Binding NewSubtaskTitle}" Placeholder="Новая подзадача" MaxLength="200" ReturnCommand="{Binding AddSubtaskCommand}"/>
+     <Button Grid.Column="1" Text="+" FontSize="22" SemanticProperties.Description="Добавить подзадачу" Command="{Binding AddSubtaskCommand}"/>
+    </Grid>
+    <CollectionView Grid.Row="3" ItemsSource="{Binding Subtasks}" SelectionMode="None">
+     <CollectionView.EmptyView><Label Text="Подзадач пока нет" Margin="0,16"/></CollectionView.EmptyView>
+     <CollectionView.ItemTemplate>
+      <DataTemplate x:DataType="models:TaskItem">
+       <Grid Padding="0,12" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+        <CheckBox IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnCompletedChanged"/>
+        <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource TaskTitle}"/>
+        <Button Grid.Column="2" Text="×" FontSize="22" BackgroundColor="#F6E6E5" TextColor="#A12724" SemanticProperties.Description="Удалить подзадачу" ToolTipProperties.Text="Удалить подзадачу" Command="{Binding BindingContext.DeleteTaskCommand, Source={x:Reference TasksPage}, x:DataType=ContentPage}" CommandParameter="{Binding .}"/>
+       </Grid>
+      </DataTemplate>
+     </CollectionView.ItemTemplate>
+    </CollectionView>
+   </Grid>
+  </Grid>
+ </Grid>
+</ContentPage>
