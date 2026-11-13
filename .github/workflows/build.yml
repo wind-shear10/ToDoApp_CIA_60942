@@ -1,0 +1,26 @@
+name: Build and test
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.400'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
+
+      - name: Run tests
+        run: dotnet test ToDoApp.tests/ToDoApp.tests.csproj --configuration Release
+
+      - name: Build Windows application
+        run: dotnet build ToDoApp/ToDoApp.csproj --configuration Release -f net10.0-windows10.0.19041.0
