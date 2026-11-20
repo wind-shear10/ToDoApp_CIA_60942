@@ -24,3 +24,39 @@ jobs:
 
       - name: Build Windows application
         run: dotnet build ToDoApp/ToDoApp.csproj --configuration Release -f net10.0-windows10.0.19041.0
+
+      - name: Publish Windows x64 application
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: >
+          dotnet publish ToDoApp/ToDoApp.csproj -c Release
+          -f net10.0-windows10.0.19041.0 -p:RuntimeIdentifierOverride=win-x64
+          -p:WindowsAppSDKSelfContained=true --self-contained true -o publish/win-x64
+
+      - name: Package application
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          if (!(Test-Path publish/win-x64/ToDoApp.exe)) { throw 'Missing ToDoApp.exe' }
+          Compress-Archive -Path publish/win-x64/* -DestinationPath ToDoApp-win-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: windows-release
+          path: ToDoApp-win-x64.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" ToDoApp-win-x64.zip --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes

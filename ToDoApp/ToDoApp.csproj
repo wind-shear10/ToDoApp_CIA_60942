@@ -72,5 +72,8 @@
     <ItemGroup>
       <ProjectReference Include="..\ToDoApp.core\ToDoApp.core.csproj" />
     </ItemGroup>
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(RuntimeIdentifierOverride)' != ''">
+        <RuntimeIdentifier>$(RuntimeIdentifierOverride)</RuntimeIdentifier>
+    </PropertyGroup>
 
 </Project>
