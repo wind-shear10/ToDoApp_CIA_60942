@@ -21,8 +21,8 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // DI создаёт цепочку: база -> ViewModel -> страница -> приложение.
-        builder.Services.AddSingleton(new TaskDatabaseService(
+        //  Изучить singleton, Di, что такое builder, services, когда создаются объекты ViewModel и DataBase
+        builder.Services.AddSingleton<TaskDatabaseService>(_ => new TaskDatabaseService(
             Path.Combine(FileSystem.AppDataDirectory, "tasks.db3")));
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddSingleton<MainPage>();

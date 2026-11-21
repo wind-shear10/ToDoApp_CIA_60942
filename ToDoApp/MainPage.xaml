@@ -31,7 +31,6 @@
   </Grid>
   <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
    <Label Text="{Binding ErrorMessage}" TextColor="#B3261E" LineBreakMode="WordWrap"/>
-   <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="24"/>
   </Grid>
   <Grid Grid.Row="4" ColumnDefinitions="*,*" ColumnSpacing="24" IsEnabled="{Binding IsReady}">
    <Grid RowDefinitions="Auto,*" RowSpacing="12">
@@ -39,6 +38,7 @@
     <CollectionView Grid.Row="1" ItemsSource="{Binding Tasks}" SelectionMode="None">
      <CollectionView.EmptyView><Label Text="Задач пока нет" Margin="0,16"/></CollectionView.EmptyView>
      <CollectionView.ItemTemplate>
+     
       <DataTemplate x:DataType="models:TaskItem">
        <Grid Padding="0,12" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="8" RowSpacing="6">
         <CheckBox IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnCompletedChanged"/>

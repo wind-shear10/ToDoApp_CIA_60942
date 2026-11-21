@@ -5,17 +5,22 @@ public sealed class TaskDatabaseService : IAsyncDisposable
 {
     private readonly SQLiteAsyncConnection _db;
     private readonly Lazy<Task> _initialization;
-    public TaskDatabaseService(string path)
+    public TaskDatabaseService(string path) : this(new SQLiteAsyncConnection(path)) { }
+    
+    public TaskDatabaseService(SQLiteAsyncConnection connection)
     {
-        _db = new SQLiteAsyncConnection(path);
+        _db = connection;
         _initialization = new Lazy<Task>(InitializeAsync);
     }
     private async Task InitializeAsync()
     {
-        await _db.CreateTableAsync<Category>();
+        var categoryTableResult = await _db.CreateTableAsync<Category>();
         await _db.CreateTableAsync<TaskItem>();
-        if (await _db.Table<Category>().CountAsync() == 0)
+        
+        if (categoryTableResult == CreateTableResult.Created)
+        {
             await _db.InsertAllAsync(new[] { new Category { Name = "Личное" }, new Category { Name = "Учёба" }, new Category { Name = "Покупки" } });
+        }
     }
     public async Task<List<Category>> GetCategoriesAsync()
     {

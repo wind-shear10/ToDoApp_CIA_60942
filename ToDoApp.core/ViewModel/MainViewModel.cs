@@ -4,18 +4,15 @@ using CommunityToolkit.Mvvm.Input;
 using TodoApp.core.Models;
 using TodoApp.core.Services;
 namespace TodoApp.core.ViewModels;
-
-// Посредник между View и Model. Здесь нет элементов MAUI и ссылок на страницу.
 public partial class MainViewModel : ObservableObject
 {
     private readonly TaskDatabaseService _database;
     private bool _loaded;
     public MainViewModel(TaskDatabaseService database) => _database = database;
-    // Коллекции уведомляют экран об добавлении и удалении элементов.
+    // Коллекции уведомляют экран об добавлении и удалении элементов
     public ObservableCollection<TaskItem> Tasks { get; } = new();
     public ObservableCollection<TaskItem> Subtasks { get; } = new();
     public ObservableCollection<Category> Categories { get; } = new();
-    // Атрибут создаёт публичное свойство и уведомление PropertyChanged.
     [ObservableProperty] private string _newTaskTitle = string.Empty;
     [ObservableProperty] private string _newSubtaskTitle = string.Empty;
     [ObservableProperty] private string _newCategoryName = string.Empty;
@@ -49,13 +46,12 @@ public partial class MainViewModel : ObservableObject
         foreach (var item in tasks) Tasks.Add(item);
         _loaded = true;
     });
-    // Toolkit создаёт AddTaskCommand. XAML вызывает команду, а не метод напрямую.
     [RelayCommand]
     private Task AddTaskAsync() => RunAsync(async () =>
     {
         if (SelectedCategory is null) throw new ArgumentException("Выбери категорию.");
         var item = await _database.AddTaskAsync(NewTaskTitle, SelectedCategory.Id);
-        Tasks.Add(item); // Сначала запись в БД, затем обновление экрана.
+        Tasks.Add(item); 
         NewTaskTitle = string.Empty;
     });
     [RelayCommand]
